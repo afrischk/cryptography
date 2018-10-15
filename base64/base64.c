@@ -63,9 +63,9 @@ char* b64_encode(const char* hex)
         return NULL;
     }
 
-    // allocate the needed memory
     int pad = 0;
     int pos = 0;
+    // allocate the needed memory
     // 6 chars represent 3 bytes and will be expanded to 4
     // + 1 for \0 in the end
     int bytes_to_alloc = (len / 6) * 4 + 1;

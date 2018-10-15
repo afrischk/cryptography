@@ -21,6 +21,13 @@ static inline int hex_to_int(char hex)
     return 0;
 }
 
+/*
+ * Converts an int value back to a hex char.
+ * ########################################
+ *
+ * int val: the actual int value 0-15
+ * returns: the corresponding hec char
+ */
 static inline char int_to_hex(int val)
 {
     if(val <= 9 && val >= 0) return val + '0';
