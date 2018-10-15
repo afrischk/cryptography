@@ -65,19 +65,19 @@ char* b64_encode(const char* hex)
 
     // allocate the needed memory
     int pad = 0;
-    int* pos = (int*) calloc(sizeof(int), 1);
+    int pos = 0;
     // 6 chars represent 3 bytes and will be expanded to 4
     // + 1 for \0 in the end
     int bytes_to_alloc = (len / 6) * 4 + 1;
     // need to be freed by the caller
-    char* enc = (char*) calloc(sizeof(char), bytes_to_alloc);
+    char* enc = (char*) calloc(bytes_to_alloc, sizeof(char));
 
     // go through the loop decreasing the length
     // by 6. rest can be either 4 or 2
     while(len >= 6)
     {
         // do the actual encoding
-        b64_expand_bytes(hex, enc, pos, pad);
+        b64_expand_bytes(hex, enc, &pos, pad);
         len -=6;
         // move pointer forward
         hex +=6;
@@ -89,11 +89,9 @@ char* b64_encode(const char* hex)
     pad = len % 6;
     if(pad != 0)
     {
-        b64_expand_bytes(hex, enc, pos, pad);
+        b64_expand_bytes(hex, enc, &pos, pad);
     }
 
-    enc[(*pos)++] = '\0';
-    // free the allocated pos pointer
-    free(pos);
+    enc[pos++] = '\0';
     return enc;
 }

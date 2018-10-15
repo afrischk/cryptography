@@ -1,6 +1,8 @@
 #ifndef HEX_H
 #define HEX_H
 
+#include <stdbool.h>
+
 /*
  * Converts the hex char into an int.
  * 48 - 57 -> 0-9
@@ -19,6 +21,13 @@ static inline int hex_to_int(char hex)
     return 0;
 }
 
+static inline char int_to_hex(int val)
+{
+    if(val <= 9 && val >= 0) return val + '0';
+    if(val <= 15 && val >= 10) return (val - 10)  + 'a';
+    return 0;
+}
+
 /*
  * Converts two hex chars into one byte (char).
  * ###########################################
@@ -29,6 +38,21 @@ static inline int hex_to_int(char hex)
 static inline char hex_to_byte(const char* hex)
 {
     return hex_to_int(hex[0]) << 4 | hex_to_int(hex[1]);
+}
+
+/*
+ * Converts a char/byte value into a hex char.
+ * #########################################
+ *
+ * char* byte: The byte to convert.
+ * bool high_bits: true --> take the 4 highest bits
+ *                 false --> takte the 4 lowest bits
+ * returns: the converted hex char.
+ */
+static inline char byte_to_hex(char* byte, bool high_bits)
+{
+    if(high_bits) return int_to_hex((*byte) >> 4);
+    return int_to_hex((*byte) & 0x0f);
 }
 
 #endif /*HEX_H*/
