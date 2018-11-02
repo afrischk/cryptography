@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "xor.h"
+#include "xor-encrypt.h"
 
 int main()
 {
@@ -14,7 +14,7 @@ int main()
     printf("XOR against\n");
     printf("Hex string 2: %s\n", hex2);
 
-    char* enc = xor_encode(hex1, hex2);
+    char* enc = xor_encrypt(hex1, hex2);
 
     printf("XOR encoded: %s\n", enc);
 

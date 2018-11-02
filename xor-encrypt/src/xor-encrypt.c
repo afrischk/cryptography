@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "hex.h"
-
+#include "xor-encrypt.h"
 /*
  * XOR encodes two strings of equal size.
  * #####################################
@@ -10,7 +10,7 @@
  * const char* hex2: 2nd hex encoded string.
  * returns: XOR encoded string.
  */
-char* xor_encode(const char* hex1, const char* hex2)
+char* xor_encrypt(const char* hex1, const char* hex2)
 {
     size_t hex1_len = strlen(hex1);
     size_t hex2_len = strlen(hex2);
