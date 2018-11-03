@@ -30,18 +30,21 @@ EXT_LIB=$(LIB_DIR)/libxor.a
 $(OBJ_DIR)/%.o: %.c $(INC_FILES)
 	$(CC) -c -o $@ $< $(CFLAGS) $(DBGFLAG)
 
-exe: $(BIN_DIR)/$(NAME) copyfile
+exe: mkdirs $(BIN_DIR)/$(NAME) copyfile
 
 $(BIN_DIR)/$(NAME): $(EXE_OBJS)
 	$(CC) -o $@ $^ $(EXT_LIB) $(CFLAGS)
 
-lib: $(EXT_LIB)
+lib: mkdirs $(EXT_LIB)
 
 $(EXT_LIB): $(LIB_OBJS)
 	ar -vr $@ $<
 
 copyfile:
 	cp xor-encrypted-hex.txt $(BIN_DIR)
+
+mkdirs:
+	mkdir -p $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR)
 
 .PHONY: clean
 

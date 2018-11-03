@@ -27,7 +27,7 @@ LIB_OBJS=$(patsubst %,$(OBJ_DIR)/%,$(_LIB_OBJS))
 $(OBJ_DIR)/%.o: %.c $(INC_FILES)
 	$(CC) -c -o $@ $< $(CFLAGS) $(DBGFLAG)
 
-exe: $(BIN_DIR)/$(NAME)
+exe: mkdirs $(BIN_DIR)/$(NAME)
 
 $(BIN_DIR)/$(NAME): $(EXE_OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
@@ -35,7 +35,10 @@ $(BIN_DIR)/$(NAME): $(EXE_OBJS)
 $(LIB_DIR)/libxor.a: $(LIB_OBJS)
 	ar -vr $@ $(LIB_OBJS)
 
-lib: $(LIB_DIR)/libxor.a
+lib: mkdirs $(LIB_DIR)/libxor.a
+
+mkdirs:
+	mkdir -p $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR)
 
 .PHONY: clean
 
