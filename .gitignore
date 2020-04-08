@@ -54,3 +54,6 @@ dkms.conf
 # Folder
 **/bin/**
 **/lib/**
+
+# OS specific
+.DS_Store
