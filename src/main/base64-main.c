@@ -11,6 +11,7 @@ int main()
     const char* r2 = "SSdtIA==";
     const char* s3 = "49276d206b";
     const char* r3 = "SSdtIGs=";
+    const char* s4 = "I'm killing your brain like a poisonous mushroom";
 
     char* enc = b64_encode(s1);
     printf("Test 1 encoded string needs no padding.\n");
@@ -19,11 +20,11 @@ int main()
     printf("Expected: %s\n", r1);
     if(strcmp(r1, enc) == 0)
     {
-        printf("Test 1 successful!.\n");
+        printf("Test 1 successful!\n");
     }
     else
     {
-        printf("Test 1 failed!. \n");
+        printf("Test 1 failed!\n");
         return 1;
     }
     free(enc);
@@ -36,11 +37,11 @@ int main()
     printf("Expected: %s\n", r2);
     if(strcmp(r2, enc) == 0)
     {
-        printf("Test 2 successful!.\n");
+        printf("Test 2 successful!\n");
     }
     else
     {
-        printf("Test 2 failed!. \n");
+        printf("Test 2 failed!\n");
         return 1;
     }
     free(enc);
@@ -53,13 +54,30 @@ int main()
     printf("Expected: %s\n", r3);
     if(strcmp(r3, enc) == 0)
     {
-        printf("Test 3 successful!.\n");
+        printf("Test 3 successful!\n");
     }
     else
     {
-        printf("Test 3 failed!. \n");
+        printf("Test 3 failed!\n");
         return 1;
     }
     free(enc);
+
+    printf("\n");
+    printf("Base64 decode!\n");
+    char *dec = b64_decode(r1);
+    printf("Input:    %s\n", r1);
+    printf("Output:   %s\n", dec);
+    printf("Expected: %s\n", s4);
+    if(strcmp(s4, dec) == 0)
+    {
+        printf("Test 4 successful!\n");
+    }
+    else
+    {
+        printf("Test 4 failed!\n");
+        return 1;
+    }
+    free(dec);
     return 0;
 }

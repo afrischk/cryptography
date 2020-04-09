@@ -1,6 +1,7 @@
 #ifndef HAMMING_H
 #define HAMMING_H
 
+#include <string.h>
 
 /*
  * Calculates hamming distance between 2 (hex)
@@ -11,9 +12,14 @@
  *  const char* hex2: pointer to the hex string.
  *  returns: hamming distance
  */
-static inline int hamming_distance(const char* hex1, const char* hex2)
+static inline unsigned int hamming_distance(const char* hex1, const char* hex2)
 {
     unsigned int distance = 0;
+
+    if(strlen(hex1) != strlen(hex2))
+    {
+        return NULL;
+    }
 
     // works for strings of equal length
     while(*hex1)

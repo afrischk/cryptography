@@ -2,7 +2,9 @@
 #define BASE64_H
 
 char* b64_encode(const char* hex);
-void b64_expand_bytes(const char* hex, char* enc, int* pos, int pad);
+char* b64_decode(const char* b64);
+void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad);
+void b64_collapse_bytes(const char* b64, char* dec, int* pos);
 
 static const unsigned char B64_TABLE[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -14,5 +16,29 @@ static const unsigned char B64_TABLE[] = {
     'w', 'x', 'y', 'z', '0', '1', '2', '3',
     '4', '5', '6', '7', '8', '9', '+', '/'
 };
+
+/*
+ * Converts the b64 char into the encoded byte.
+ * A-Z 65 - 90
+ * a-z 97 - 122
+ * 0-9 48 -57
+ * + 43
+ * / 47
+ * ##################################
+ *
+ * char* b64: b64 char
+ * returns: resulting byte value
+ */
+static inline unsigned int b64_to_enc_byte(const char* b64)
+{
+
+    if(*b64 >= 65 && *b64 <= 90) return *b64 - 'A';
+    if(*b64 >= 97 && *b64 <= 122) return *b64 - 'a' + 26; // add the offset -> B64_TABLE
+    if(*b64 >= 48 && *b64 <= 57) return *b64 - '0' + 52; // add the offset -> B64_TABLE
+    if(*b64 == 43) return 62;
+    if(*b64 == 47) return 63;
+    // error --> =
+    return 66;
+}
 
 #endif /*BASE64_H*/
