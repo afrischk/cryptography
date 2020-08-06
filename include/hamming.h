@@ -18,7 +18,8 @@ static inline unsigned int hamming_distance(const char* hex1, const char* hex2)
 
     if(strlen(hex1) != strlen(hex2))
     {
-        return NULL;
+        // i dont know if this works :-)
+        return -1;
     }
 
     // works for strings of equal length

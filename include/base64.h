@@ -1,10 +1,13 @@
 #ifndef BASE64_H
 #define BASE64_H
 
-char* b64_encode(const char* hex);
-char* b64_decode(const char* b64);
-void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad);
-void b64_collapse_bytes(const char* b64, char* dec, int* pos);
+#include <stdbool.h>
+
+char *b64_encode(const char* hex);
+char *b64_decode(const char* b64, size_t buf_size);
+void b64_decode_file(const char* file_name_in, const char* file_name_out);
+void b64_expand_bytes(const char* hex, char* enc, int* pos, int pad);
+void b64_collapse_bytes(const char* b64, int pad, bool last_4_bytes, char* dec, int* pos);
 
 static const unsigned char B64_TABLE[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',

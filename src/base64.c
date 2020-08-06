@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <errno.h>
 #include "hex.h"
 #include "base64.h"
+
+extern int errno;
 
 /*
  * Transforms a 3 bytes group into a 4 bytes group by splitting
@@ -52,14 +55,17 @@ void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad)
  * const char* b64: The pointer to the base64 string to decode.
  * char* dec      : Pointer to the decoded output.
  * int* pos       : Pointer to the current position in the
- *                  decoded output.
+ * int pad        : Padding (=)
  */
-void b64_collapse_bytes(const char *b64, char *dec, int *pos)
+void b64_collapse_bytes(const char *b64, int pad, bool last_4_bytes, char *dec, int *pos)
 {
+    bool has_3rd_byte_pad = pad == 2;
+    bool has_4th_byte_pad = has_3rd_byte_pad || (pad == 1);
+
     char b64_byte_1 = b64_to_enc_byte(b64);
     char b64_byte_2 = b64_to_enc_byte(b64 + 1);
-    char b64_byte_3 = b64_to_enc_byte(b64 + 2);
-    char b64_byte_4 = b64_to_enc_byte(b64 + 3);
+    char b64_byte_3 = has_3rd_byte_pad && last_4_bytes ? 0 : b64_to_enc_byte(b64 + 2);
+    char b64_byte_4 = has_4th_byte_pad && last_4_bytes ? 0 : b64_to_enc_byte(b64 + 3);
 
     char dec_byte_1 = (b64_byte_1 << 2) | ((b64_byte_2 & 0x30) >> 4);
     char dec_byte_2 = ((b64_byte_2 & 0x0f) << 4) | ((b64_byte_3 & 0x3c) >> 2);
@@ -79,29 +85,52 @@ void b64_collapse_bytes(const char *b64, char *dec, int *pos)
  * const char* b64: The pointer to the b64 string to decode.
  * returns        : The pointer to the decoded string.
  */
-char *b64_decode(const char *b64)
+char *b64_decode(const char *b64, size_t buf_size)
 {
     int pad = 0;
     int pos = 0;
-    size_t len = strlen(b64);
     // calc pad chars with nested magic
-    pad = b64[len - 2] == '=' ? 2 : b64[len - 1] == '=' ? 1 : 0;
+    pad = b64[buf_size - 2] == '=' ? 2 : b64[buf_size - 1] == '=' ? 1 : 0;
     // for every 4 bytes we only need 3
-    // ignore pad and +1 for \0
-    size_t bytes_to_alloc = ((3 * len) / 4) - pad + 1;
+    size_t bytes_to_alloc = ((3 * buf_size / 4) + 1) - pad;
     // need to be freed by the caller
-    char *dec = (char *)calloc(bytes_to_alloc, sizeof(char));
+    char *dec = malloc(bytes_to_alloc * sizeof(char));
     // go through base64 string
-    while (len >= 4)
+    while (buf_size >= 4)
     {
-        b64_collapse_bytes(b64, dec, &pos);
-        len -= 4;
+        b64_collapse_bytes(b64, pad, buf_size == 4, dec, &pos);
+        buf_size -= 4;
         b64 += 4;
     }
 
     // add terminator
     dec[pos++] = '\0';
     return dec;
+}
+
+void b64_decode_file(const char *file_name_in, const char *file_name_out)
+{
+    size_t chunk = 1024;
+    size_t nread = 0;
+    char *buffer = malloc(chunk * sizeof(char));
+    FILE *in = fopen(file_name_in, "rb");
+    FILE *out = fopen(file_name_out, "wb");
+    if(in == NULL || out == NULL)
+    {
+        fprintf(stderr, "Error occured: %d Could not open file: %s\n", errno, strerror(errno));
+    }
+
+    while ((nread = fread(buffer, 1, chunk, in)) > 0)
+    {
+        char *dec = b64_decode(buffer, nread);
+        // TODO make a struct with len and decoded string
+        fwrite(dec, 1, strlen(dec), out);
+        free(dec);
+    }
+
+    free(buffer);
+    fclose(in);
+    fclose(out);
 }
 
 /*

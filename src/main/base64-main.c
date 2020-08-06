@@ -65,7 +65,7 @@ int main()
 
     printf("\n");
     printf("Base64 decode!\n");
-    char *dec = b64_decode(r1);
+    char *dec = b64_decode(r1, strlen(r1));
     printf("Input:    %s\n", r1);
     printf("Output:   %s\n", dec);
     printf("Expected: %s\n", s4);

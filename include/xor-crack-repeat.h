@@ -1,0 +1,6 @@
+#ifndef XOR_CRACK_REPEAT_H
+#define XOR_CRACK_REPEAT_H
+
+
+
+#endif /*XOR_CRACK_REPEAT_H*/
