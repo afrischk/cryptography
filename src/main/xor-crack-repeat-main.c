@@ -19,7 +19,7 @@ int main(void)
     const char* in_file_name = "../files/xor-crack-repeat.b64";
     const char* out_file_name = "../files/xor-crack-repeat.bin";
     b64_decode_file(in_file_name, out_file_name);
-    xor_key_list_t* key_list = xor_det_key(out_file_name, 2, 40);
+    xor_key_list_t* key_list = xor_get_list_of_scored_key_sizes(out_file_name, 2, 40);
 
     printf("List size is %zu\n", key_list->size);
     xor_key_node_t* current_node = key_list->first;
@@ -29,5 +29,8 @@ int main(void)
         current_node = current_node->next;
     }
 
+    xor_crack_key(out_file_name, key_list);
+
+    //free_key_list(key_list);
     return 0;
 }

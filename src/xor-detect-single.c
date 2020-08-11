@@ -11,7 +11,7 @@ xor_crk_res_t *xor_detect_single(const char *file_path)
     g_res->score = 0.0;
     while((fscanf(file, "%60s", hex)) != EOF)
     {
-        xor_crk_res_t *l_res = xor_crack(hex);
+        xor_crk_res_t *l_res = xor_crack_hex_str(hex);
         if(l_res->score > g_res->score)
         {
             g_res = l_res;
