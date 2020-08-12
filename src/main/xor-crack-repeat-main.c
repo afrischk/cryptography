@@ -21,11 +21,11 @@ int main(void)
     b64_decode_file(in_file_name, out_file_name);
     xor_key_list_t* key_list = xor_get_list_of_scored_key_sizes(out_file_name, 2, 40);
 
-    printf("List size is %zu\n", key_list->size);
+    //printf("List size is %zu\n", key_list->size);
     xor_key_node_t* current_node = key_list->first;
     while(current_node != NULL)
     {
-        printf("Score is %f with key size %zu\n", current_node->score, current_node->key_size);
+        //printf("Score is %f with key size %zu\n", current_node->score, current_node->key_size);
         current_node = current_node->next;
     }
 

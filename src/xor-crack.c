@@ -15,46 +15,55 @@
  * returns: The decrypted text.
  *
  */
-static char* decrypt_hex_str(const char* enc_hex, char key, size_t len)
+static char *decrypt_hex_str(const char *enc_hex, char key, size_t len)
 {
     // the decrypted messsage has len/2 because
     // we consume 2 chars of the hex string to
     // create 1 byte of the decrypted string
-    size_t to_alloc = (len/2) + 1;
-    char* dec = (char*) calloc(to_alloc, sizeof(char));
-    for(size_t pos = 0, dec_pos = 0; pos < len; pos += 2)
+    size_t to_alloc = (len / 2) + 1;
+    char *dec = (char *)calloc(to_alloc, sizeof(char));
+    for (size_t pos = 0, dec_pos = 0; pos < len; pos += 2)
     {
         // xor with the key
-        dec[dec_pos] = hex_to_byte(&enc_hex[pos]) ^ key;
+        dec[dec_pos] = decrypt(hex_to_byte(&enc_hex[pos]), key);
         dec_pos++;
     }
     dec[to_alloc] = '\0';
     return dec;
 }
 
-static char* decrypt_bytes(const char* enc_bytes, char key, size_t len, size_t start, size_t offset)
+static char *decrypt_bytes(const char *enc_bytes, char key, size_t len, size_t start, size_t offset)
 {
     size_t to_alloc = len + 1;
-    char* dec = malloc(to_alloc * sizeof(char));
-    for(size_t pos = start; pos < len; pos+= offset)
+    char *dec = malloc(to_alloc * sizeof(char));
+    for (size_t pos = start; pos < len; pos += offset)
     {
         // xor with the key
-        dec[pos] = enc_bytes[pos] ^ key;
+        dec[pos] = decrypt(enc_bytes[pos], key);
     }
     dec[to_alloc] = '\0';
     return dec;
 }
 
-void xor_crack_bytes(const char *enc_bytes, size_t len, size_t start, size_t offset)
+xor_crk_res_t *xor_crack_bytes(const char *enc_bytes, size_t len, size_t start, size_t offset)
 {
-    for(int key = 0; key <= 255; key++)
+    xor_crk_res_t *res = malloc(sizeof(xor_crk_res_t));
+    res->score = 0.0;
+    for (int key = 0; key <= 255; key++)
     {
         // decrypt the message
         char *dec = decrypt_bytes(enc_bytes, (char)key, len, start, offset);
-        printf("Test decoded: %s\n", dec);
+        float score = score_text(dec, len);
+        //printf("Score: %f with key: %c\n", score, key);
+        if (score > res->score)
+        {
+            res->score = score;
+            res->key = (char)key;
+            //printf("SAVE : Score: %f with key: %c\n", score, key);
+        }
         free(dec);
     }
-
+    return res;
 }
 
 /*
@@ -66,25 +75,25 @@ void xor_crack_bytes(const char *enc_bytes, size_t len, size_t start, size_t off
  * returns: The decrypted message.
  *
  */
-xor_crk_res_t* xor_crack_hex_str(const char *enc_hex)
+xor_crk_res_t *xor_crack_hex_str(const char *enc_hex)
 {
     size_t len = strlen(enc_hex);
-    if(len % 2 != 0)
+    if (len % 2 != 0)
     {
         return NULL;
     }
 
-    xor_crk_res_t *res = (xor_crk_res_t*) calloc(1, sizeof(xor_crk_res_t));
+    xor_crk_res_t *res = (xor_crk_res_t *)calloc(1, sizeof(xor_crk_res_t));
     res->score = 0.0;
     // loop through all possible values of a byte
-    for(int key = 0; key <= 255; key++)
+    for (int key = 0; key <= 255; key++)
     {
         // decrypt the message
         char *dec = decrypt_hex_str(enc_hex, (char)key, len);
         // score the message
-        float score = score_text(dec, len/2);
+        float score = score_text(dec, len / 2);
         // if we get a higher score: save the key
-        if(score > res->score)
+        if (score > res->score)
         {
             res->score = score;
             res->key = (char)key;

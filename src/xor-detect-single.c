@@ -25,5 +25,4 @@ xor_crk_res_t *xor_detect_single(const char *file_path)
 
     fclose(file);
     return g_res;
-
 }

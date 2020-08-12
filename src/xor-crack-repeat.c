@@ -9,7 +9,7 @@
 
 extern int errno;
 
-static xor_key_node_t* xor_init_key_node()
+static xor_key_node_t *xor_init_key_node()
 {
     xor_key_node_t *node = malloc(sizeof(xor_key_node_t));
     node->key_size = 0;
@@ -19,9 +19,9 @@ static xor_key_node_t* xor_init_key_node()
     return node;
 }
 
-static xor_key_list_t* init_key_List()
+static xor_key_list_t *init_key_List()
 {
-    xor_key_list_t* list = malloc(sizeof(xor_key_list_t));
+    xor_key_list_t *list = malloc(sizeof(xor_key_list_t));
     list->size = 0;
     return list;
 }
@@ -32,7 +32,7 @@ static void add_key_node_as_last(xor_key_node_t *node, xor_key_node_t *new)
     new->prev = node;
 }
 
-static void add_key_node_sorted(xor_key_list_t* list, xor_key_node_t* node, xor_key_node_t* new)
+static void add_key_node_sorted(xor_key_list_t *list, xor_key_node_t *node, xor_key_node_t *new)
 {
     new->next = node;
     new->prev = node->prev;
@@ -91,19 +91,19 @@ static xor_key_list_t *add_key_size_sorted(xor_key_list_t *list, size_t key_size
 }
 
 // buggy
-void free_key_list(xor_key_list_t* list)
+void free_key_list(xor_key_list_t *list)
 {
-    xor_key_node_t* node = list->first;
-    while(node->next != NULL)
+    xor_key_node_t *node = list->first;
+    while (node->next != NULL)
     {
-        xor_key_node_t* next = node->next;
+        xor_key_node_t *next = node->next;
         free(node);
         node = next;
     }
     free(node);
 }
 
-xor_key_list_t* xor_get_list_of_scored_key_sizes(const char* byte_file, size_t min_key_size, size_t max_key_size)
+xor_key_list_t *xor_get_list_of_scored_key_sizes(const char *byte_file, size_t min_key_size, size_t max_key_size)
 {
     FILE *in = fopen(byte_file, "rb");
     if (in == NULL)
@@ -142,7 +142,7 @@ xor_key_list_t* xor_get_list_of_scored_key_sizes(const char* byte_file, size_t m
     return key_list;
 }
 
-char* xor_crack_key(const char* byte_file, xor_key_list_t* list)
+char *xor_crack_key(const char *byte_file, xor_key_list_t *list)
 {
     FILE *in = fopen(byte_file, "rb");
     if (in == NULL)
@@ -154,18 +154,38 @@ char* xor_crack_key(const char* byte_file, xor_key_list_t* list)
     size_t fsize = ftell(in);
     fseek(in, 0, SEEK_SET);
 
-    char* bytes = malloc(fsize * sizeof(char));
+    char *bytes = malloc(fsize * sizeof(char));
     fread(bytes, 1, fsize, in);
 
-    size_t key_size = list->first->key_size;
-    printf("Start cracking with eky size %zu\n", key_size);
-    //size_t block_len = (size_t)fsize/key_size; // ignore rest
-    //char* block = malloc(block_len * sizeof(char));
-    for(size_t i = 0; i < key_size; i++)
+    for (xor_key_node_t *node = list->first; node != NULL; node = node->next)
     {
-        xor_crack_bytes(bytes, fsize, i, key_size);
-    }
+        size_t key_size = node->key_size;
+        printf("Start cracking with eky size %zu\n", key_size);
+        //size_t block_len = (size_t)fsize/key_size; // ignore rest
+        char *key = malloc((key_size + 1) * sizeof(char));
+        for (size_t i = 0; i < key_size; i++)
+        {
+            xor_crk_res_t *res = xor_crack_bytes(bytes, fsize, i, key_size);
+            printf("Score: %f with key: %c\n", res->score, res->key);
+            key[i] = res->key;
+            free(res);
+        }
+        key[key_size + 1] = '\0';
+        printf("key is %s\n", key);
 
+        char *dec = malloc((fsize + 1) * sizeof(char *));
+        for (size_t i = 0; i < fsize; i += key_size)
+        {
+            for (size_t j = 0; j < key_size; j++)
+            {
+                dec[i + j] = key[j] ^ bytes[i + j];
+            }
+        }
+        dec[fsize + 1] = '\0';
+        printf("dec is %s\n", dec);
+        free(key);
+        free(dec);
+    }
     //free(block);
     free(bytes);
     fclose(in);
