@@ -13,6 +13,6 @@ static float LETTER_PROB[26][1] =
     /*y*/{0.01974}, /*z*/{0.00074}
 };
 
-extern float score_text(const char* text, size_t len);
+float score_text(const char* text, size_t len);
 
 #endif /*SCORE_H*/

@@ -43,9 +43,12 @@ xor-encrypt: lib
 	$(CC) -o $(BIN_DIR)/$@ src/main/xor-encrypt-main.c $(CFLAGS) $(LIB) 
 
 xor-encrypt-repeat: lib
-	$(CC) -o $(BIN_DIR)/$@ src/main/xor-encrypt-repeat-main.c $(CFLAGS) $(LIB) 
+	$(CC) -o $(BIN_DIR)/$@ src/main/xor-encrypt-repeat-main.c $(CFLAGS) $(LIB)
 
-all: lib base64 xor-crack xor-detect-single xor-encrypt xor-encrypt-repeat
+xor-crack-repeat: lib
+	$(CC) -o $(BIN_DIR)/$@ src/main/xor-crack-repeat-main.c $(CFLAGS) $(DBGFLAG) $(LIB) 
+
+all: lib base64 xor-crack xor-detect-single xor-encrypt xor-encrypt-repeat xor-crack-repeat
 
 .PHONY: clean
 
