@@ -15,15 +15,6 @@
 static inline unsigned int hamming_distance(const char* hex1, const char* hex2)
 {
     unsigned int distance = 0;
-
-    printf("hex 1 len %zu hex 2 len %zu \n", strlen(hex1), strlen(hex2));
-
-    if(strlen(hex1) != strlen(hex2))
-    {
-        // i dont know if this works :-)
-        return -1;
-    }
-
     // works for strings of equal length
     while(*hex1)
     {

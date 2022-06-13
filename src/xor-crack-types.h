@@ -1,11 +1,14 @@
 #ifndef XOR_CRACK_TYPES_H
 #define XOR_CRACK_TYPES_H
 
+#include <stddef.h>
+
 typedef struct xor_crk_res
 {
     char *dec_res;
     float score;
     char key;
+    size_t len;
 } xor_crk_res_t;
 
 typedef struct xor_key_node

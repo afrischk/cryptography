@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/stat.h>
 #include "hex.h"
 #include "base64.h"
+#include "io.h"
 
 extern int errno;
 
@@ -62,10 +64,10 @@ void b64_collapse_bytes(const char *b64, int pad, bool last_4_bytes, char *dec, 
     bool has_3rd_byte_pad = pad == 2;
     bool has_4th_byte_pad = has_3rd_byte_pad || (pad == 1);
 
-    char b64_byte_1 = b64_to_enc_byte(b64);
-    char b64_byte_2 = b64_to_enc_byte(b64 + 1);
-    char b64_byte_3 = has_3rd_byte_pad && last_4_bytes ? 0 : b64_to_enc_byte(b64 + 2);
-    char b64_byte_4 = has_4th_byte_pad && last_4_bytes ? 0 : b64_to_enc_byte(b64 + 3);
+    char b64_byte_1 = b64_decode_byte(b64);
+    char b64_byte_2 = b64_decode_byte(b64 + 1);
+    char b64_byte_3 = has_3rd_byte_pad && last_4_bytes ? 0 : b64_decode_byte(b64 + 2);
+    char b64_byte_4 = has_4th_byte_pad && last_4_bytes ? 0 : b64_decode_byte(b64 + 3);
 
     char dec_byte_1 = (b64_byte_1 << 2) | ((b64_byte_2 & 0x30) >> 4);
     char dec_byte_2 = ((b64_byte_2 & 0x0f) << 4) | ((b64_byte_3 & 0x3c) >> 2);
@@ -85,54 +87,123 @@ void b64_collapse_bytes(const char *b64, int pad, bool last_4_bytes, char *dec, 
  * const char* b64: The pointer to the b64 string to decode.
  * returns        : The pointer to the decoded string.
  */
-char *b64_decode(const char *b64, size_t buf_size)
+/*b64_res_t *b64_decode(const char *b64, size_t buf_size)
 {
     int pad = 0;
     int pos = 0;
     // calc pad chars with nested magic
-    pad = b64[buf_size - 2] == '=' ? 2 : b64[buf_size - 1] == '=' ? 1 : 0;
+   pad = b64[buf_size - 2] == '=' ? 2 : b64[buf_size - 1] == '=' ? 1 : 0;
     // for every 4 bytes we only need 3
     size_t bytes_to_alloc = ((3 * buf_size / 4) + 1) - pad;
     // need to be freed by the caller
-    char *dec = malloc(bytes_to_alloc * sizeof(char));
+    //printf("Bytes to alloc for decoded chunk: %zu\n", bytes_to_alloc);
+    b64_res_t* res = malloc(sizeof(b64_res_t));
+    res->dec = malloc(bytes_to_alloc * sizeof(char));
     // go through base64 string
     while (buf_size >= 4)
     {
-        b64_collapse_bytes(b64, pad, buf_size == 4, dec, &pos);
+        b64_collapse_bytes(b64, pad, buf_size == 4, res->dec, &pos);
         buf_size -= 4;
         b64 += 4;
     }
 
+    res->len = pos;
     // add terminator
-    dec[pos++] = '\0';
+    res->dec[pos++] = '\0';
+    return res;
+}*/
+
+data_t* b64_decode(data_t* data)
+{
+    int pad = 0;
+    int pos = 0;
+    // calc pad chars with nested magic
+    pad = data->buf[data->size - 2] == '=' ? 2 : data->buf[data->size - 1] == '=' ? 1 : 0;
+    // for every 4 bytes we only need 3
+    size_t to_alloc = ((3 * data->size / 4) + 1) - pad;
+    // need to be freed by the caller
+    //printf("Bytes to alloc for decoded chunk: %zu\n", bytes_to_alloc);
+    data_t* dec = malloc(sizeof(data_t));
+    dec->buf = malloc(to_alloc * sizeof(char));
+    // go through base64 string
+    size_t bytes_to_decode = data->size;
+    while (bytes_to_decode >= 4)
+    {
+        b64_collapse_bytes(data->buf, pad, bytes_to_decode == 4, dec->buf, &pos);
+        bytes_to_decode -= 4;
+        data->buf += 4;
+    }
+
+    dec->size = pos;
+    // add terminator
+    // TODO not needed, because no string operation
+    dec->buf[pos++] = '\0';
     return dec;
 }
 
+/*b64_res_t* b64_decode_2(const char* b64, size_t size){
+    int pad = 0;
+    int pos = 0;
+    // calc pad chars with nested magic
+    pad = b64[size - 2] == '=' ? 2 : b64[size - 1] == '=' ? 1 : 0;
+    // for every 4 bytes we only need 3
+    size_t bytes_to_alloc = ((3 * size / 4) + 1) - pad;
+
+    b64_res_t* res = malloc(sizeof(b64_res_t));
+    res->dec = malloc(bytes_to_alloc * sizeof(char));
+    for (int i = 0, j = 0; i < size;) {
+
+        int sextet_a = b64[i] == '=' ? 0 & i++ : B64_DECODE_TABLE[b64[i++]];
+        int sextet_b = b64[i] == '=' ? 0 & i++ : B64_DECODE_TABLE[b64[i++]];
+        int sextet_c = b64[i] == '=' ? 0 & i++ : B64_DECODE_TABLE[b64[i++]];
+        int sextet_d = b64[i] == '=' ? 0 & i++ : B64_DECODE_TABLE[b64[i++]];
+
+        int triple = (sextet_a << 3 * 6)
+        + (sextet_b << 2 * 6)
+        + (sextet_c << 1 * 6)
+        + (sextet_d << 0 * 6);
+
+        if (j < bytes_to_alloc) res->dec[j++] = (triple >> 2 * 8) & 0xFF;
+        if (j < bytes_to_alloc) res->dec[j++] = (triple >> 1 * 8) & 0xFF;
+        if (j < bytes_to_alloc) res->dec[j++] = (triple >> 0 * 8) & 0xFF;
+    }
+    res->len = bytes_to_alloc;
+    return res;
+
+}*/
+/*
 void b64_decode_file(const char *file_name_in, const char *file_name_out)
 {
-    size_t chunk = 1024;
+    size_t chunk = 4096;
     size_t nread = 0;
     char *buffer = malloc(chunk * sizeof(char));
+    memset(buffer, 0, chunk);
     FILE *in = fopen(file_name_in, "rb");
     FILE *out = fopen(file_name_out, "wb");
-    if(in == NULL || out == NULL)
+    if(in == NULL|| out == NULL)
     {
         fprintf(stderr, "Error occured: %d Could not open file: %s\n", errno, strerror(errno));
     }
 
+    int fd = fileno(in);
+    struct stat buf;
+    fstat(fd, &buf);
+    off_t file_size = buf.st_size;
     while ((nread = fread(buffer, 1, chunk, in)) > 0)
     {
-        char *dec = b64_decode(buffer, nread);
-        // TODO make a struct with len and decoded string
-        fwrite(dec, 1, strlen(dec), out);
-        free(dec);
+        char *read_bytes = malloc(sizeof(char) * nread);
+        memcpy(read_bytes, buffer, nread);
+        b64_res_t* res = b64_decode(read_bytes, nread);
+        fwrite(res->dec, 1, res->len, out);
+        free(res->dec);
+        free(res);
     }
 
     free(buffer);
     fclose(in);
     fclose(out);
 }
-
+*/
 /*
  * Encodes a hex string into base64. The caller of the function
  * needs to free the allocated memory for the encoded string.

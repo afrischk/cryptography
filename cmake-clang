@@ -1,0 +1,3 @@
+#! /bin/zsh
+
+cmake ../../src/ -D CMAKE_CXX_COMPILER=clang++ -D CMAKE_C_COMPILER=clang -D CMAKE_EXPORT_COMPILE_COMMANDS=1

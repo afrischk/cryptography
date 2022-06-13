@@ -65,11 +65,14 @@ int main()
 
     printf("\n");
     printf("Base64 decode!\n");
-    char *dec = b64_decode(r1, strlen(r1));
+    data_t* input = malloc(sizeof(data_t));
+    input->buf = r1;
+    input->size = strlen(r1);
+    data_t* res = b64_decode(input);
     printf("Input:    %s\n", r1);
-    printf("Output:   %s\n", dec);
+    printf("Output:   %s\n", res->buf);
     printf("Expected: %s\n", s4);
-    if(strcmp(s4, dec) == 0)
+    if(strcmp(s4, res->buf) == 0)
     {
         printf("Test 4 successful!\n");
     }
@@ -78,6 +81,7 @@ int main()
         printf("Test 4 failed!\n");
         return 1;
     }
-    free(dec);
+    free(input);
+    free(res);
     return 0;
 }

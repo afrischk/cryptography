@@ -9,12 +9,12 @@ OBJS=$(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
 DEBUG=0
 CC=clang
-CFLAGS=-I$(INC_DIR)
+CFLAGS=-I$(INC_DIR)# -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
 
 ifeq ($(DEBUG),0)
 	DBGFLAG=
 else
-	DBGFLAG=-g
+	DBGFLAG=-g -O1
 endif
 
 LIB=$(LIB_DIR)/crypto.a
@@ -48,7 +48,10 @@ xor-encrypt-repeat: lib
 xor-crack-repeat: lib
 	$(CC) -o $(BIN_DIR)/$@ src/main/xor-crack-repeat-main.c $(CFLAGS) $(DBGFLAG) $(LIB)
 
-all: lib base64 xor-crack xor-detect-single xor-encrypt xor-encrypt-repeat xor-crack-repeat
+read-data: lib
+	$(CC) -o $(BIN_DIR)/$@ src/main/io-main.c $(CFLAGS) $(DBGFLAG) $(LIB)
+
+all: lib base64 xor-crack xor-detect-single xor-encrypt xor-encrypt-repeat xor-crack-repeat read-data
 
 .PHONY: clean
 

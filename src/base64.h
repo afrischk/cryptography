@@ -2,10 +2,12 @@
 #define BASE64_H
 
 #include <stdbool.h>
+#include <stddef.h>
+#include "io.h"
 
 char *b64_encode(const char* hex);
-char *b64_decode(const char* b64, size_t buf_size);
-void b64_decode_file(const char* file_name_in, const char* file_name_out);
+data_t *b64_decode(data_t* data);
+//void b64_decode_file(const char* file_name_in, const char* file_name_out);
 void b64_expand_bytes(const char* hex, char* enc, int* pos, int pad);
 void b64_collapse_bytes(const char* b64, int pad, bool last_4_bytes, char* dec, int* pos);
 
@@ -20,28 +22,25 @@ static const unsigned char B64_TABLE[] = {
     '4', '5', '6', '7', '8', '9', '+', '/'
 };
 
+static const unsigned char B64_DECODE_TABLE[] = {
+  62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59,
+  60, 61, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6,
+  7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+  20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0, 26, 27,
+  28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+  40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+};
+
 /*
  * Converts the b64 char into the encoded byte.
- * A-Z 65 - 90
- * a-z 97 - 122
- * 0-9 48 -57
- * + 43
- * / 47
  * ##################################
  *
  * char* b64: b64 char
  * returns: resulting byte value
  */
-static inline unsigned int b64_to_enc_byte(const char* b64)
+static inline unsigned char b64_decode_byte(const char* b64)
 {
-
-    if(*b64 >= 65 && *b64 <= 90) return *b64 - 'A';
-    if(*b64 >= 97 && *b64 <= 122) return *b64 - 'a' + 26; // add the offset -> B64_TABLE
-    if(*b64 >= 48 && *b64 <= 57) return *b64 - '0' + 52; // add the offset -> B64_TABLE
-    if(*b64 == 43) return 62;
-    if(*b64 == 47) return 63;
-    // error --> =
-    return 66;
+    return B64_DECODE_TABLE[(*b64) - '+'];
 }
 
 #endif /*BASE64_H*/
