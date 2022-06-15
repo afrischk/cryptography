@@ -2,11 +2,11 @@
 #define IO_H
 #include <stdlib.h>
 
-typedef struct data{
+struct io_data{
   char* buf;
   size_t size;
-} data_t;
+};
 
-data_t* read();
+struct io_data* read(void);
 
 #endif /*IO_H*/

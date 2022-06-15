@@ -14,7 +14,6 @@ set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(HEADER_FILES
   ${INCLUDE_DIR}/xor-crack.h
-  ${INCLUDE_DIR}/hamming.h
   ${INCLUDE_DIR}/base64.h
   ${INCLUDE_DIR}/score.h
   ${INCLUDE_DIR}/algorithms.h
@@ -47,9 +46,14 @@ set(WARNING_FLAGS
   -Wmissing-include-dirs
 )
 
+set(FLAGS
+  -fsanitize=address
+)
+
 # add the executable
 add_executable(xor-cipher ${SOURCES})
 target_link_libraries(xor-cipher m)
-target_compile_options(xor-cipher PRIVATE ${WARNING_FLAGS})
+target_compile_options(xor-cipher PRIVATE ${WARNING_FLAGS} ${FLAGS})
+target_link_options(xor-cipher PRIVATE ${FLAGS})
 target_include_directories(xor-cipher PRIVATE ${INCLUDE_DIR})
 set_target_properties(xor-cipher PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} C_STANDARD 11)

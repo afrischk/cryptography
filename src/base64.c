@@ -44,10 +44,10 @@ void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad)
     char enc_byte_3 = ((hex_byte_2 & 0x0f) << 2) | ((hex_byte_3 & 0xc0) >> 6);
     char enc_byte_4 = (hex_byte_3 & 0x3f);
 
-    enc[(*pos)++] = B64_TABLE[enc_byte_1];
-    enc[(*pos)++] = B64_TABLE[enc_byte_2];
-    enc[(*pos)++] = is_3rd_byte_pad_needed ? '=' : B64_TABLE[enc_byte_3];
-    enc[(*pos)++] = is_4th_byte_pad_needed ? '=' : B64_TABLE[enc_byte_4];
+    enc[(*pos)++] = B64_TABLE[(unsigned char)enc_byte_1];
+    enc[(*pos)++] = B64_TABLE[(unsigned char)enc_byte_2];
+    enc[(*pos)++] = is_3rd_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_3];
+    enc[(*pos)++] = is_4th_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_4];
 }
 
 /*
@@ -113,7 +113,7 @@ void b64_collapse_bytes(const char *b64, int pad, bool last_4_bytes, char *dec, 
     return res;
 }*/
 
-data_t* b64_decode(data_t* data)
+struct io_data* b64_decode(struct io_data* data)
 {
     int pad = 0;
     int pos = 0;
@@ -123,7 +123,7 @@ data_t* b64_decode(data_t* data)
     size_t to_alloc = ((3 * data->size / 4) + 1) - pad;
     // need to be freed by the caller
     //printf("Bytes to alloc for decoded chunk: %zu\n", bytes_to_alloc);
-    data_t* dec = malloc(sizeof(data_t));
+    struct io_data* dec = malloc(sizeof(struct io_data));
     dec->buf = malloc(to_alloc * sizeof(char));
     // go through base64 string
     size_t bytes_to_decode = data->size;

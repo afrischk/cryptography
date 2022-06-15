@@ -4,10 +4,10 @@
 #include "io.h"
 #include "xor-crack-types.h"
 
-xor_crk_res_t* xor_crack_hex_str(const char *enc_hex);
-xor_crk_res_t* xor_crack_bytes(data_t *data, size_t start, size_t offset);
+struct xor_crk_res* xor_crack_hex_str(const char *enc_hex);
+struct xor_crk_res* xor_crack_bytes(struct io_data *data, size_t start, size_t offset);
 
-static inline char decrypt(const char byte, const char key)
+static inline char xor_decrypt(const char byte, const char key)
 {
     return byte ^ key;
 }

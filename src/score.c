@@ -28,21 +28,21 @@
  * returns: The score of the decrypted text.
  *
  */
-char_freq_t *char_occurences(const char *str, size_t len) {
-  char_freq_t *freq = malloc(sizeof(char_freq_t));
-  freq->occ = malloc(sizeof(unsigned int) * 255);
+struct char_freq *char_occurences(const char *str, size_t len) {
+  struct char_freq *freq = malloc(sizeof(struct char_freq));
+  freq->occurrences = malloc(sizeof(unsigned int) * 255);
   freq->char_in_str = malloc(sizeof(bool) * 255);
   freq->char_in_str_len = 0;
   freq->total = 0;
   //  init
   for (unsigned char i = 0; i < 255; i++) {
-    freq->occ[i] = 0;
+    freq->occurrences[i] = 0;
     freq->char_in_str[i] = false;
   }
 
   for (size_t i = 0; i < len; i++) {
-    freq->occ[(unsigned char)str[i]] += 1;
-    freq->char_in_str[str[i]] = true;
+    freq->occurrences[(unsigned char)str[i]] += 1;
+    freq->char_in_str[(unsigned char)str[i]] = true;
     freq->char_in_str_len++;
     freq->total++;
   }
@@ -65,17 +65,17 @@ float get_char_freq(unsigned char c) {
 }
 
 float score_text(const char *text, size_t len) {
-  char_freq_t *freq = char_occurences(text, len);
+  struct char_freq *freq = char_occurences(text, len);
   float sum = 0.0;
   for (unsigned char i = 0; i < 255; i++) {
     if (freq->char_in_str[i]) {
       float char_freq = get_char_freq((unsigned char)i);
-      float sqrt = sqrtf(char_freq * ((float)freq->occ[(unsigned char)i] /
+      float sqrt = sqrtf(char_freq * ((float)freq->occurrences[(unsigned char)i] /
                                       (float)freq->total));
       sum += sqrt;
     }
   }
-  free(freq->occ);
+  free(freq->occurrences);
   free(freq);
   return sum;
 }

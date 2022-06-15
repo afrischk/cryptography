@@ -6,7 +6,7 @@
 #include "io.h"
 
 char *b64_encode(const char* hex);
-data_t *b64_decode(data_t* data);
+struct io_data *b64_decode(struct io_data* data);
 //void b64_decode_file(const char* file_name_in, const char* file_name_out);
 void b64_expand_bytes(const char* hex, char* enc, int* pos, int pad);
 void b64_collapse_bytes(const char* b64, int pad, bool last_4_bytes, char* dec, int* pos);

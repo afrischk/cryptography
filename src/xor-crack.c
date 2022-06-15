@@ -26,41 +26,41 @@ static char *decrypt_hex_str(const char *enc_hex, char key, size_t len)
     for (size_t pos = 0, dec_pos = 0; pos < len; pos += 2)
     {
         // xor with the key
-        dec[dec_pos] = decrypt(hex_to_byte(&enc_hex[pos]), key);
+        dec[dec_pos] = xor_decrypt(hex_to_byte(&enc_hex[pos]), key);
         dec_pos++;
     }
     dec[to_alloc] = '\0';
     return dec;
 }
 
-static xor_crk_res_t *decrypt_bytes(const char *enc_bytes, char key, size_t len, size_t start, size_t offset)
+static struct xor_crk_res *decrypt_bytes(const char *enc_bytes, char key, size_t len, size_t start, size_t offset)
 {
-    xor_crk_res_t *res = malloc(sizeof(xor_crk_res_t));
+    struct xor_crk_res *res = malloc(sizeof(struct xor_crk_res));
     size_t to_alloc = ((size_t)len/offset);// + 1;
     char *dec = malloc(to_alloc * sizeof(char));
     size_t block_pos = 0;
     for (size_t pos = start; pos < len; pos += offset)
     {
         // xor with the key
-        dec[block_pos++] = decrypt(enc_bytes[pos], key);
+        dec[block_pos++] = xor_decrypt(enc_bytes[pos], key);
     }
 
-    res->dec_res = dec;
-    res->len = block_pos;
+    res->dec = dec;
+    res->size = block_pos;
     //dec[to_alloc] = '\0';
     return res;
 }
 
-xor_crk_res_t *xor_crack_bytes(data_t *data, size_t start, size_t offset)
+struct xor_crk_res *xor_crack_bytes(struct io_data *data, size_t start, size_t offset)
 {
-    xor_crk_res_t *res = malloc(sizeof(xor_crk_res_t));
+    struct xor_crk_res *res = malloc(sizeof(struct xor_crk_res));
     res->score = 0.0;
     for (int key = 0; key <= 255; key++)
     {
         // decrypt the message
-        xor_crk_res_t *dec = decrypt_bytes(data->buf, (char)key, data->size, start, offset);
-        float score = score_text(dec->dec_res, dec->len);
-        free(dec->dec_res);
+        struct xor_crk_res *dec = decrypt_bytes(data->buf, (char)key, data->size, start, offset);
+        float score = score_text(dec->dec, dec->size);
+        free(dec->dec);
         free(dec);
         if (score > res->score){
             res->score = score;
@@ -79,7 +79,7 @@ xor_crk_res_t *xor_crack_bytes(data_t *data, size_t start, size_t offset)
  * returns: The decrypted message.
  *
  */
-xor_crk_res_t *xor_crack_hex_str(const char *enc_hex)
+struct xor_crk_res *xor_crack_hex_str(const char *enc_hex)
 {
     size_t len = strlen(enc_hex);
     if (len % 2 != 0)
@@ -87,7 +87,7 @@ xor_crk_res_t *xor_crack_hex_str(const char *enc_hex)
         return NULL;
     }
 
-    xor_crk_res_t *res = (xor_crk_res_t *)calloc(1, sizeof(xor_crk_res_t));
+    struct xor_crk_res *res = (struct xor_crk_res *)calloc(1, sizeof(struct xor_crk_res));
     res->score = 0.0;
     // loop through all possible values of a byte
     for (int key = 0; key <= 255; key++)
@@ -101,7 +101,7 @@ xor_crk_res_t *xor_crack_hex_str(const char *enc_hex)
         {
             res->score = score;
             res->key = (char)key;
-            res->dec_res = dec;
+            res->dec = dec;
         }
         else
         {
