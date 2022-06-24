@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "algorithms.h"
 
 size_t alg_n_cr(size_t n, size_t r) {

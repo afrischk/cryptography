@@ -2,20 +2,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define BUFFER_SIZE 1024
 
-struct io_data *read(void) {
+struct io_data *read(const char *file) {
   size_t nread;
-  size_t buf_size = 1024;
   struct io_data *data = malloc(sizeof(struct io_data));
   data->size = 0;
-  data->buf = malloc(sizeof(char) * buf_size);
-  char *buf = malloc(sizeof(char) * buf_size);
-  freopen(NULL, "rb", stdin);
-  // TODO DAP DEBUG with stdin and file does not work
-  // FILE *file = fopen("../../files/bible.b64", "rb");
-  while ((nread = fread(buf, 1, buf_size, stdin)) > 0)
-  // while((nread = fread(buf, 1, buf_size, file)) > 0)
-  {
+  data->buf = malloc(sizeof(char) * BUFFER_SIZE);
+  char *buf = malloc(sizeof(char) * BUFFER_SIZE);
+
+  FILE *input;
+  if (file[0] == '-') {
+    input = stdin;
+    freopen(NULL, "rb", input);
+  } else {
+    input = fopen(file, "rb");
+      if (input == NULL) {
+        printf("Failed to read file!\n");
+      }
+  }
+
+  while ((nread = fread(buf, 1, BUFFER_SIZE, input)) > 0) {
     if (data->size == 0) {
       memcpy(data->buf, buf, nread);
     } else {

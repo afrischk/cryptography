@@ -7,6 +7,6 @@ struct io_data{
   size_t size;
 };
 
-struct io_data* read(void);
+struct io_data* read(const char *file);
 
 #endif /*IO_H*/
