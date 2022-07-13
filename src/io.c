@@ -36,6 +36,8 @@ struct io_data *read(const char *file) {
 
     data->size += nread;
   }
+  fclose(input);
   free(buf);
+  buf = NULL;
   return data;
 }

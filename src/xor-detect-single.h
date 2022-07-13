@@ -1,8 +1,8 @@
 #ifndef XOR_DETECT_SINGLE_H
 #define XOR_DETECT_SINGLE_H
 
-#include "xor-crack.h"
+#include "xor-crack-types.h"
 
-extern struct xor_crk_res *xor_detect_single(const char *file_path);
+struct xor_crk_res *xor_detect_single(const char *file_path);
 
 #endif /*XOR_DETECT_SINGLE_H*/

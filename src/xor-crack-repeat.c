@@ -90,6 +90,16 @@ void free_key_list(struct alg_list *list) {
     node = next;
   }
   free(node);
+  free(list);
+}
+
+static void free_keys(char **keys){
+  for(size_t i = 0; i < 4; i++){
+    free(keys[i]);
+    keys[i] = NULL;
+  }
+  free(keys);
+  keys = NULL;
 }
 
 struct alg_list *xor_get_list_of_scored_key_sizes(const struct io_data *data,
@@ -102,13 +112,15 @@ struct alg_list *xor_get_list_of_scored_key_sizes(const struct io_data *data,
       keys[i] = malloc(key_size * sizeof(char));
       memcpy(keys[i], data->buf + i * key_size, key_size);
     }
-    struct alg_tuple **combs = alg_combine_keys(keys, key_size, 4);
+    struct alg_tuple_list *combs = alg_combine_key_pairs(keys, key_size, 4);
     float score = 0.0;
-    for(size_t i = 0; i < alg_n_cr(4, 2); i++){
-      score += (float)alg_hamming_distance(combs[i]->a, combs[i]->b);
+    for(size_t i = 0; i < combs->size; i++){
+      score += (float)alg_hamming_dist_fixed_len(combs->tuples[i]->a, combs->tuples[i]->b, key_size);
     }
     score /= (float)key_size;
     key_list = add_key_size_sorted(key_list, key_size, score / (float)6);
+    alg_free_tuple_list(combs);
+    free_keys(keys);
   }
 
   return key_list;
@@ -118,6 +130,7 @@ char* xor_crack_key(struct io_data *data, struct alg_list *list) {
   size_t top_n = 0;
   float key_score = 0.0;
   struct io_data *possible_key = malloc(sizeof(struct io_data));
+  possible_key->buf = malloc(sizeof(char));
   for (struct alg_node *node = list->first; node != NULL && top_n < 10;
        node = node->next) {
     size_t key_size = node->size;
@@ -125,20 +138,22 @@ char* xor_crack_key(struct io_data *data, struct alg_list *list) {
     for (size_t i = 0; i < key_size; i++) {
       struct xor_crk_res *res = xor_crack_bytes(data, i, key_size);
       key[i] = res->key;
-      free(res);;
+      free(res);
     }
     float tmp_score = score_text(key, key_size);
     if (tmp_score >= key_score) {
       key_score = tmp_score;
-      free(possible_key->buf);
-      possible_key->buf = key;
+      // TODO why not free?
+      //free(possible_key->buf);
+      possible_key->buf = realloc(possible_key->buf, key_size);
+      memcpy(possible_key->buf, key, key_size);
       possible_key->size = key_size;
-    } else{
-      free(key);
     }
+    free(key);
     top_n++;
   }
 
+  // TODO write crack function
   //printf("key len is %zu\n", possible_key->size);
   //printf("key is %s\n", possible_key->buf);
   char *dec = malloc((data->size + 1) * sizeof(char));
@@ -156,7 +171,10 @@ char* xor_crack_key(struct io_data *data, struct alg_list *list) {
         data->buf[times * possible_key->size + j] ^ possible_key->buf[j];
     printf("%c", dec[times * possible_key->size + j]);
   }
-  dec[data->size + 1] = '\0';
+  //dec[data->size + 1] = '\0';
+  free(possible_key->buf);
   free(possible_key);
+  //free(data->buf);
+  //free(data);
   return dec;
 }

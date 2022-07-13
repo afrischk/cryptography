@@ -1,6 +1,21 @@
+#include "algorithms.h"
 #include <stdlib.h>
 #include <string.h>
-#include "algorithms.h"
+
+void alg_free_tuple_list(struct alg_tuple_list *list){
+    for(size_t i = 0; i < list->size; i++){
+      free(list->tuples[i]->a);
+      list->tuples[i]->a = NULL;
+      free(list->tuples[i]->b);
+      list->tuples[i]->b = NULL;
+      free(list->tuples[i]);
+      list->tuples[i] = NULL;
+    }
+    free(list->tuples);
+    list->tuples = NULL;
+    free(list);
+    list = NULL;
+}
 
 size_t alg_n_cr(size_t n, size_t r) {
   if (r > n) {
@@ -14,23 +29,26 @@ size_t alg_n_cr(size_t n, size_t r) {
   return alg_n_cr(n - 1, r - 1) + alg_n_cr(n - 1, r);
 }
 
-struct alg_tuple **alg_combine_keys(char **keys, size_t key_len, size_t num_keys) {
-  struct alg_tuple **combinations = malloc(alg_n_cr(num_keys, 2) * sizeof(*combinations));
-  size_t x = 0;
-  for (size_t i = 0; i < num_keys; i++) {
-    for (size_t j = 0; j < num_keys; j++) {
-      if(i == j || i > j){
-        continue;
+struct alg_tuple_list *alg_combine_key_pairs(char **keys, size_t key_len,
+                                         size_t num_keys) {
+  size_t num_of_key_pairs = alg_n_cr(num_keys, 2);
+  struct alg_tuple_list *tuple_list = malloc(sizeof(struct alg_tuple_list));
+  tuple_list->size = num_of_key_pairs;
+  tuple_list->tuples = malloc(sizeof(*tuple_list->tuples) * num_of_key_pairs);
+  for (size_t x = 0; x < num_of_key_pairs; x++) {
+    for (size_t i = 0; i < num_keys; i++) {
+      for (size_t j = 0; j < num_keys; j++) {
+        if (i == j || i > j) {
+          continue;
+        }
+        struct alg_tuple *t = malloc(sizeof(struct alg_tuple));
+        t->a = malloc(sizeof(char) * key_len);
+        t->b = malloc(sizeof(char) * key_len);
+        memcpy(t->a, keys[i], key_len);
+        memcpy(t->b, keys[j], key_len);
+        tuple_list->tuples[x] = t;
       }
-      struct alg_tuple *t = malloc(sizeof(struct alg_tuple));
-      t->a = malloc(sizeof(char) * key_len);
-      t->b = malloc(sizeof(char) * key_len);
-      memcpy(t->a, keys[i], key_len);
-      memcpy(t->b, keys[j], key_len);
-      combinations[x++] = t;
-      // TODO why does pointer arithemtic not work?
-      //*combinations = t;
     }
   }
-  return combinations;
+  return tuple_list;
 }

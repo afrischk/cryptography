@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "xor-detect-single.h"
+#include "xor-crack.h"
 
 struct xor_crk_res *xor_detect_single(const char *file_path)
 {
