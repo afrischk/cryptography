@@ -73,7 +73,7 @@ void base64_tests(void){
   printf("\n");
   printf("Base64 decode!\n");
   struct io_data *input = malloc(sizeof(struct io_data));
-  input->buf = r1;
+  input->buf = (char*)r1;
   input->size = strlen(r1);
   struct io_data *res = b64_decode(input);
   printf("Input:    %s\n", r1);
@@ -127,6 +127,7 @@ void xor_tests(void){
   printf("\n");
   printf("Test 4:\n");
   printf("Wait for input to encrpyt...\n");
-  xor_encrypt_repeat("ICE");
+  struct io_data *data = read("../../files/xor-plain-text.txt");
+  xor_encrypt_repeat("ICE", data);
 }
 

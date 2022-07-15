@@ -64,8 +64,6 @@ int main(int argc, char **argv) {
   char *dec = xor_crack_key(dec_data, key_list);
   // free
   free(dec);
-  //free(data->buf);
-  free(data);
   free(dec_data->buf);
   free(dec_data);
   free_key_list(key_list);

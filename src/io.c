@@ -10,8 +10,7 @@ struct io_data *read(const char *file) {
   data->size = 0;
   data->buf = malloc(sizeof(char) * BUFFER_SIZE);
   char *buf = malloc(sizeof(char) * BUFFER_SIZE);
-
-  FILE *input;
+  FILE *input = NULL;
   if (file[0] == '-') {
     input = stdin;
     freopen(NULL, "rb", input);
@@ -19,9 +18,9 @@ struct io_data *read(const char *file) {
     input = fopen(file, "rb");
       if (input == NULL) {
         printf("Failed to read file!\n");
+        exit(1);
       }
   }
-
   while ((nread = fread(buf, 1, BUFFER_SIZE, input)) > 0) {
     if (data->size == 0) {
       memcpy(data->buf, buf, nread);
@@ -29,11 +28,10 @@ struct io_data *read(const char *file) {
       data->buf = realloc(data->buf, data->size + nread);
       if (data->buf == NULL) {
         printf("Failed to allocate memory!\n");
+        exit(1);
       }
-
       memcpy(data->buf + data->size, buf, nread);
     }
-
     data->size += nread;
   }
   fclose(input);

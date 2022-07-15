@@ -57,7 +57,7 @@ set(WARNING_FLAGS
 )
 
 set(FLAGS
-  # -fsanitize=address
+   -fsanitize=address
 )
 
 # add the executable
