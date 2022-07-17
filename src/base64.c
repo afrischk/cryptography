@@ -46,6 +46,7 @@ void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad) {
       is_3rd_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_3];
   enc[(*pos)++] =
       is_4th_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_4];
+  printf("Enc pos is %d\n", *pos);
 }
 
 /*
@@ -82,7 +83,9 @@ struct io_data *b64_decode(struct io_data *data) {
   int pos = 0;
   size_t pad = data->size % 4;
   // for every 4 bytes we only need 3
-  size_t to_alloc = ((3 * (data->size - pad) / 4));
+  // TODO: here is the problem
+  size_t to_alloc = ((3 * (data->size - pad) / 4)) + 1;
+  //size_t to_alloc = ((3 * (data->size) / 4));
   // need to be freed by the caller
   struct io_data *dec = malloc(sizeof(struct io_data));
   dec->buf = malloc(to_alloc * sizeof(char));
@@ -97,6 +100,7 @@ struct io_data *b64_decode(struct io_data *data) {
 
   // go through base64 string
   dec->size = pos;
+  dec->buf[pos++] = '\0';
   return dec;
 }
 
@@ -118,13 +122,14 @@ char *b64_encode(const char *hex) {
 
   int pad = 0;
   int pos = 0;
+  int pad_alloc = 4; // TODO: define
   // allocate the needed memory
   // 6 chars represent 3 bytes and will be expanded to 4
   // + 1 for \0 in the end
-  int bytes_to_alloc = (len / 6) * 4 + 1;
+  // TODO: /6??
+  int bytes_to_alloc = (len/6) * 4 + pad_alloc + 1;
   // need to be freed by the caller
   char *enc = (char *)calloc(bytes_to_alloc, sizeof(char));
-
   // go through the loop decreasing the length
   // by 6. rest can be either 4 or 2
   while (len >= 6) {
@@ -134,7 +139,6 @@ char *b64_encode(const char *hex) {
     // move pointer forward
     hex += 6;
   }
-
   // check if we have a rest (4 or 2)
   // if we have calculate the last 4 bytes od
   // the encoded string

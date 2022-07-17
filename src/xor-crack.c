@@ -16,19 +16,21 @@
  * returns: The decrypted text.
  *
  */
-static char *decrypt_hex_str(const char *enc_hex, char key, size_t len) {
+static struct io_data* decrypt_hex_str(const char *enc_hex, char key, size_t len) {
   // the decrypted messsage has len/2 because
   // we consume 2 chars of the hex string to
   // create 1 byte of the decrypted string
+  struct io_data *data = malloc(sizeof(struct io_data));
   size_t to_alloc = (len / 2) + 1;
-  char *dec = (char *)calloc(to_alloc, sizeof(char));
-  for (size_t pos = 0, dec_pos = 0; pos < len; pos += 2) {
+  data->buf = malloc(to_alloc * sizeof(char));
+  data->size = 0;
+  for (size_t pos = 0; pos < len; pos += 2) {
     // xor with the key
-    dec[dec_pos] = xor_decrypt(hex_to_byte(&enc_hex[pos]), key);
-    dec_pos++;
+    data->buf[data->size++] = xor_decrypt(hex_to_byte(&enc_hex[pos]), key);
   }
-  dec[to_alloc] = '\0';
-  return dec;
+
+  data->buf[data->size++] = '\0';
+  return data;
 }
 
 static struct xor_crk_res *decrypt_bytes(const char *enc_bytes, char key,
@@ -88,22 +90,30 @@ struct xor_crk_res *xor_crack_hex_str(const char *enc_hex) {
   }
 
   struct xor_crk_res *res = malloc(sizeof(struct xor_crk_res));
+  res->dec = malloc(sizeof(char) * len/2 + 1);
   res->score = 0.0;
   // loop through all possible values of a byte
   for (int key = 0; key < 256; key++) {
     // decrypt the message
-    char *dec = decrypt_hex_str(enc_hex, (char)key, len);
+    struct io_data *dec = decrypt_hex_str(enc_hex, (char)key, len);
     // score the message
-    float score = score_text(dec, len / 2);
+    float score = score_text(dec->buf, dec->size);
     // if we get a higher score: save the key
     if (score > res->score) {
       res->score = score;
       res->key = (char)key;
-      res->dec = dec;
-    } else {
+      res->size = dec->size;
+      memcpy(res->dec, dec->buf, dec->size);
+      free(dec->buf);
+      dec->buf = NULL;
       free(dec);
+      dec = NULL;
+    } else {
+      free(dec->buf);
+      dec->buf = NULL;
+      free(dec);
+      dec = NULL;
     }
   }
-
   return res;
 }

@@ -78,7 +78,10 @@ float score_text(const char *text, size_t len) {
     }
   }
   free(freq->occurrences);
+  freq->occurrences = NULL;
   free(freq->char_in_str);
+  freq->char_in_str = NULL;
   free(freq);
+  freq = NULL;
   return sum;
 }

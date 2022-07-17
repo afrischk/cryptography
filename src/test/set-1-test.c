@@ -81,6 +81,7 @@ void base64_tests(void){
   printf("Expected: %s\n", s4);
   assert(strcmp(s4, res->buf) == 0);
   free(input);
+  free(res->buf);
   free(res);
 }
 
@@ -123,11 +124,15 @@ void xor_tests(void){
   free(res2->dec);
   free(res2);
 
-  // TODO make it work without the stdin
   printf("\n");
   printf("Test 4:\n");
-  printf("Wait for input to encrpyt...\n");
+  printf("Use ../../files/xor-plain-text.txt to encrypt\n");
   struct io_data *data = read("../../files/xor-plain-text.txt");
   xor_encrypt_repeat("ICE", data);
+  printf("Encrypted data size is %zu\n", data->size);
+  printf("Encrypted data is %s\n", data->buf);
+  assert(data->size != 0);
+  free(data->buf);
+  free(data);
 }
 
