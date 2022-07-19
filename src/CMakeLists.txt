@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-# set the project name and version
-project(xor-cipher)
+project(craxor)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_COMPILER clang)
@@ -13,12 +12,7 @@ set(CMAKE_DEBUG_POSTFIX d)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(HEADER_FILES
-  ${INCLUDE_DIR}/xor-crack.h
-  ${INCLUDE_DIR}/xor-crack-types.h
-  ${INCLUDE_DIR}/xor-crack-repeat.h
-  ${INCLUDE_DIR}/xor-detect-single.h
-  ${INCLUDE_DIR}/xor-encrypt.h
-  ${INCLUDE_DIR}/xor-encrypt-repeat.h
+  ${INCLUDE_DIR}/xor.h
   ${INCLUDE_DIR}/base64.h
   ${INCLUDE_DIR}/score.h
   ${INCLUDE_DIR}/algorithms.h
@@ -27,13 +21,9 @@ set(HEADER_FILES
 )
 
 set(SOURCES
-  main/xor-crack-repeat-main.c
+  main/craxor.c
   test/set-1-test.c
-  xor-crack-repeat.c
-  xor-crack.c
-  xor-detect-single.c
-  xor-encrypt.c
-  xor-encrypt-repeat.c
+  xor.c
   base64.c
   score.c
   algorithms.c
@@ -61,9 +51,9 @@ set(FLAGS
 )
 
 # add the executable
-add_executable(xor-cipher ${SOURCES})
-target_link_libraries(xor-cipher m)
-target_compile_options(xor-cipher PRIVATE ${WARNING_FLAGS} ${FLAGS})
-target_link_options(xor-cipher PRIVATE ${FLAGS})
-target_include_directories(xor-cipher PRIVATE ${INCLUDE_DIR} ${INCLUDE_DIR}/test)
-set_target_properties(xor-cipher PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} C_STANDARD 11)
+add_executable(craxor ${SOURCES})
+target_link_libraries(craxor m)
+target_compile_options(craxor PRIVATE ${WARNING_FLAGS} ${FLAGS})
+target_link_options(craxor PRIVATE ${FLAGS})
+target_include_directories(craxor PRIVATE ${INCLUDE_DIR} ${INCLUDE_DIR}/test)
+set_target_properties(craxor PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} C_STANDARD 11)

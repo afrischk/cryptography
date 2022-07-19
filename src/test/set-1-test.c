@@ -6,11 +6,7 @@
 #include "io.h"
 #include "set-1-test.h"
 #include "algorithms.h"
-#include "xor-crack-types.h"
-#include "xor-crack.h"
-#include "xor-detect-single.h"
-#include "xor-encrypt.h"
-#include "xor-encrypt-repeat.h"
+#include "xor.h"
 
 
 void hamming_distance_tests(void){

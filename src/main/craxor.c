@@ -1,8 +1,7 @@
 #include "base64.h"
 #include "io.h"
 #include "score.h"
-#include "xor-crack-repeat.h"
-#include "xor-crack-types.h"
+#include "xor.h"
 #include "set-1-test.h"
 #include <argp.h>
 #include <stdio.h>
