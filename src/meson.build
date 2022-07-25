@@ -18,6 +18,11 @@ compiler_args = [
 # math lib
 cc = meson.get_compiler('c')
 m_dep = cc.find_library('m', required : false)
+unity_dep = dependency('unity', required: false)
+if not unity_dep.found()
+  unity_proj = subproject('unity')
+  unity_dep = unity_proj.get_variable('unity_dep')
+endif
 
 incdir = include_directories('test')
 
@@ -32,4 +37,4 @@ src = [
 ]
 
 
-executable('craxor', sources: src, include_directories: incdir, dependencies: m_dep, c_args: compiler_args)
+executable('craxor', sources: src, include_directories: incdir, dependencies: [m_dep,unity_dep], c_args: compiler_args)

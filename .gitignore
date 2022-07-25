@@ -69,3 +69,4 @@ compile_commands.json
 # custom
 *.bin
 build/
+src/subprojects/unity/
