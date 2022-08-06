@@ -54,7 +54,17 @@ dkms.conf
 # Folder
 **/bin/**
 **/lib/**
+
+# OS specific
+.DS_Store
+
+# IDE specific
+.vscode
+
+# ccls
+.ccls-cache
 .cache
 
-# subprojects
-src/subprojects/unity
+# custom
+build/
+src/subprojects/unity/
