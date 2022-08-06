@@ -54,3 +54,7 @@ dkms.conf
 # Folder
 **/bin/**
 **/lib/**
+.cache
+
+# subprojects
+src/subprojects/unity
