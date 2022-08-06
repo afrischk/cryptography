@@ -1,4 +1,4 @@
-project('craxor', 'c', default_options: ['c_std=c11'])
+project('craxor', 'c', default_options: ['c_std=c2x'])
 
 compiler_args = [
  '-Wall',
