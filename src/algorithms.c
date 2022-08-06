@@ -37,7 +37,7 @@ struct alg_tuple_list *alg_combine_key_pairs(char **keys, size_t key_len,
   tuple_list->size = num_of_key_pairs;
   tuple_list->tuples = malloc(sizeof(*tuple_list->tuples) * num_of_key_pairs);
   size_t num_of_tuples_added = 0;
-  while(num_of_tuples_added < num_of_key_pairs){
+  while (num_of_tuples_added < num_of_key_pairs) {
     for (size_t i = 0; i < num_keys; i++) {
       for (size_t j = 0; j < num_keys; j++) {
         if (i == j || i > j) {
@@ -54,4 +54,68 @@ struct alg_tuple_list *alg_combine_key_pairs(char **keys, size_t key_len,
     }
   }
   return tuple_list;
+}
+
+struct alg_node *alg_init_node(void) {
+  struct alg_node *node = malloc(sizeof(struct alg_node));
+  node->size = 0;
+  node->score = FLT_MAX;
+  node->next = NULL;
+  node->prev = NULL;
+  return node;
+}
+
+struct alg_list *alg_init_List(void) {
+  struct alg_list *list = malloc(sizeof(struct alg_list));
+  list->size = 0;
+  return list;
+}
+
+void alg_add_node_as_last(struct alg_node *node, struct alg_node *new) {
+  node->next = new;
+  new->prev = node;
+}
+
+void alg_add_node_before(struct alg_list *list, struct alg_node *node,
+                         struct alg_node *new) {
+  new->next = node;
+  new->prev = node->prev;
+  node->prev = new;
+  if (new->prev == NULL) {
+    // if no prev available its the first node
+    list->first = new;
+  } else {
+    new->prev->next = new;
+  }
+}
+
+struct alg_list *alg_add_node(struct alg_list *list,
+                              struct alg_node *new_node) {
+  for (struct alg_node *current_node = list->first; current_node != NULL;
+       current_node = current_node->next) {
+    if (new_node->score >= current_node->score) {
+      // add to end of list
+      if (current_node->next == NULL) {
+        alg_add_node_as_last(current_node, new_node);
+        break;
+      }
+    } else {
+      alg_add_node_before(list, current_node, new_node);
+      break;
+    }
+  }
+
+  list->size++;
+  return list;
+}
+
+void alg_free_list(struct alg_list *list) {
+  struct alg_node *node = list->first;
+  while (node->next != NULL) {
+    struct alg_node *next = node->next;
+    free(node);
+    node = next;
+  }
+  free(node);
+  free(list);
 }
