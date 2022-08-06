@@ -3,8 +3,6 @@ A repository for crypto challenges.
 
 ## Craxor
 A tool for xor encryption and decryption. Build by solving the cryptopals challenges from the base set 1.1-1.6.
-
-## Usage
 ```
 Usage: craxor [OPTION...] FILE
 Craxor is a tool to crack xor encryption. It takes a base64 encoded encrypted
