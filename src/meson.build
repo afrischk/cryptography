@@ -58,6 +58,4 @@ craxor_unittest_src = [
   'io.c'
 ]
 
-#unittests = executable('craxor-unittests', sources: craxor_unittest_src, dependencies: [unity_dep, m_dep])
-#test('Bla', unittests)
 executable('craxor-unittests', sources: craxor_unittest_src, dependencies: [unity_dep, m_dep])
