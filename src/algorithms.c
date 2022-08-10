@@ -3,6 +3,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+// calculates hamming distance between 2 (hex)
+unsigned int alg_hamming_dist_fixed_len(const char *hex1, const char *hex2,
+                                        size_t len) {
+  unsigned int distance = 0;
+  // works for strings of equal length
+  for (size_t i = 0; i < len; i++) {
+    unsigned int xor_byte = hex1[i] ^ hex2[i];
+    while (xor_byte > 0) {
+      distance += xor_byte & 1;
+      xor_byte >>= 1;
+    }
+  }
+  return distance;
+}
+
+unsigned int alg_hamming_dist(const char *hex1, const char *hex2) {
+  unsigned int distance = 0;
+  // works for strings of equal length
+  while (*hex1) {
+    unsigned int xor_byte = *hex1++ ^ *hex2++;
+    while (xor_byte > 0) {
+      distance += xor_byte & 1;
+      xor_byte >>= 1;
+    }
+  }
+
+  return distance;
+}
+
 void alg_free_tuple_list(struct alg_tuple_list *list) {
   for (size_t i = 0; i < list->size; i++) {
     free((void *)list->tuples[i]->a);
@@ -22,11 +51,9 @@ size_t alg_n_cr(size_t n, size_t r) {
   if (r > n) {
     return 0;
   }
-
   if (r == 0 || r == n) {
     return 1;
   }
-
   return alg_n_cr(n - 1, r - 1) + alg_n_cr(n - 1, r);
 }
 

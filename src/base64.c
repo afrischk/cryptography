@@ -7,18 +7,8 @@
 #include "base64.h"
 #include "io.h"
 
-/*
- * Transforms a 3 bytes group into a 4 bytes group by splitting
- * the 24 bits into 6 bits.
- *############################################################
- *
- * const char* hex: The pointer to the hex string to encode.
- * char* enc      : Pointer to the encoded output.
- * int* pos       : Pointer to the current position in the
- *                  encoded output.
- * int pad        : Padding that indicates a 1 or 2 byte
- *                  padding.
- */
+// transforms a 3 bytes group into a 4 bytes group by splitting
+// the 24 bits into 6 bits.
 void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad) {
   // check if we need a padding of =
   // 2 means that we only have 1 byte left in the hex string
@@ -42,22 +32,11 @@ void b64_expand_bytes(const char *hex, char *enc, int *pos, int pad) {
 
   enc[(*pos)++] = B64_TABLE[(unsigned char)enc_byte_1];
   enc[(*pos)++] = B64_TABLE[(unsigned char)enc_byte_2];
-  enc[(*pos)++] =
-      is_3rd_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_3];
-  enc[(*pos)++] =
-      is_4th_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_4];
-  printf("Enc pos is %d\n", *pos);
+  enc[(*pos)++] = is_3rd_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_3];
+  enc[(*pos)++] = is_4th_byte_pad_needed ? '=' : B64_TABLE[(unsigned char)enc_byte_4];
 }
 
-/*
- * Transforms a 4 bytes group into a 3 bytes group
- *############################################################
- *
- * const char* b64: The pointer to the base64 string to decode.
- * char* dec      : Pointer to the decoded output.
- * int* pos       : Pointer to the current position in the
- * int pad        : Padding (=)
- */
+// transforms a 4 bytes group into a 3 bytes group
 void b64_collapse_bytes(const char *b64, size_t pad, bool last_4_bytes,
                         char *dec, int *pos) {
   bool has_3rd_byte_pad = pad == 2;
@@ -104,14 +83,8 @@ struct io_data *b64_decode(struct io_data *data) {
   return dec;
 }
 
-/*
- * Encodes a hex string into base64. The caller of the function
- * needs to free the allocated memory for the encoded string.
- *#############################################################
- *
- * const char* hex: The pointer to the hex string to encode.
- * returns        : The pointer to the encoded string.
- */
+// encodes a hex string into base64. The caller of the function
+// needs to free the allocated memory for the encoded string.
 char *b64_encode(const char *hex) {
   // get the length
   // if its not even: return

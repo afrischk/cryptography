@@ -29,7 +29,6 @@
  *
  */
 struct char_freq *char_occurences(const char *str, size_t len) {
-  //printf("Calc char occurence from str with len %zu\n", len);
   struct char_freq *freq = malloc(sizeof(struct char_freq));
   freq->occurrences = malloc(sizeof(unsigned int) * 256);
   freq->char_in_str = malloc(sizeof(bool) * 256);
@@ -66,7 +65,6 @@ float get_char_freq(unsigned char c) {
 }
 
 float score_text(const char *text, size_t len) {
-  //printf("Score text with len %zu\n", len);
   struct char_freq *freq = char_occurences(text, len);
   float sum = 0.0;
   for (size_t i = 0; i < 256; i++) {

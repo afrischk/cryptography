@@ -10,8 +10,8 @@
 
 const char *argp_program_version = "craxor 1.0";
 static char doc[] =
-    "Craxor is a tool to crack xor encryption. It takes a base64 encoded "
-    "encrypted input and tries to decrpyt the cipher text.";
+    "Craxor is a tool to crack xor encrypted data. It takes a base64 encoded "
+    "input and tries to decrpyt the cipher text.";
 static char args_doc[] = "FILE";
 struct arguments {
   char *args[1];
@@ -19,8 +19,8 @@ struct arguments {
   unsigned int max_key_len;
 };
 static struct argp_option options[] = {
-    {"min_key_len", 'a', "MINKEYLEN", 0, "Minimum assumend key length (default: 2).", 0},
-    {"max_key_len", 'b', "MAXKEYLEN", 0, "Maximum assumend key length (default: 40).", 0},
+    {"min_key_len", 'a', "MINKEYLEN", OPTION_ARG_OPTIONAL, "Minimum assumend key length (default: 2).", 0},
+    {"max_key_len", 'b', "MAXKEYLEN", OPTION_ARG_OPTIONAL, "Maximum assumend key length (default: 40).", 0},
     {0}};
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   struct arguments *arguments = state->input;
@@ -63,15 +63,9 @@ int main(int argc, char **argv) {
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
   struct io_data *data = read(arguments.args[0]);
-  // decode
-  struct io_data *dec_data = b64_decode(data);
-  struct alg_list *key_list = xor_get_list_of_scored_key_sizes(
-      dec_data, arguments.min_key_len, arguments.max_key_len);
-  char *dec = xor_data_with_most_likely_key(dec_data, key_list);
+  char *dec = xor_crack(data, arguments.min_key_len, arguments.max_key_len);
+  printf("%s", dec);
   // free
   free(dec);
-  free(dec_data->buf);
-  free(dec_data);
-  alg_free_list(key_list);
   exit(0);
 }
