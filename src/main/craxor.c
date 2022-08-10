@@ -19,8 +19,8 @@ struct arguments {
   unsigned int max_key_len;
 };
 static struct argp_option options[] = {
-    {"min_key_len", 'a', "MINKEYLEN", OPTION_ARG_OPTIONAL, "Minimum assumend key length (default: 2).", 0},
-    {"max_key_len", 'b', "MAXKEYLEN", OPTION_ARG_OPTIONAL, "Maximum assumend key length (default: 40).", 0},
+    {"min_key_len", 'a', "MINKEYLEN", 0, "Minimum assumend key length (default: 2).", 0},
+    {"max_key_len", 'b', "MAXKEYLEN", 0, "Maximum assumend key length (default: 40).", 0},
     {0}};
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   struct arguments *arguments = state->input;
