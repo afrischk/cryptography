@@ -37,35 +37,6 @@ void alg_add_node_before(struct alg_list *list, struct alg_node *node,
                          struct alg_node *new);
 struct alg_list *alg_add_node(struct alg_list *list, struct alg_node *new_node);
 void alg_free_list(struct alg_list *list);
-
-// calculates hamming distance between 2 (hex)
-static inline unsigned int
-alg_hamming_dist_fixed_len(const char *hex1, const char *hex2, size_t len) {
-  unsigned int distance = 0;
-  // works for strings of equal length
-  for (size_t i = 0; i < len; i++) {
-    unsigned int xor_byte = hex1[i] ^ hex2[i];
-    while (xor_byte > 0) {
-      distance += xor_byte & 1;
-      xor_byte >>= 1;
-    }
-  }
-  return distance;
-}
-
-// TODO: why heap overflow in some cases?
-static inline unsigned int alg_hamming_dist(const char *hex1,
-                                            const char *hex2) {
-  unsigned int distance = 0;
-  // works for strings of equal length
-  while (*hex1) {
-    unsigned int xor_byte = *hex1++ ^ *hex2++;
-    while (xor_byte > 0) {
-      distance += xor_byte & 1;
-      xor_byte >>= 1;
-    }
-  }
-
-  return distance;
-}
+unsigned int alg_hamming_dist_fixed_len(const char *hex1, const char *hex2, size_t len);
+unsigned int alg_hamming_dist(const char *hex1, const char *hex2);
 #endif /*ALGORITHMS_H*/

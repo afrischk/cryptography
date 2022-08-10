@@ -10,13 +10,12 @@
 #include <unity.h>
 
 void setUp(void) {
-    // set stuff up here
+  // set stuff up here
 }
 
 void tearDown(void) {
-    // clean stuff up here
+  // clean stuff up here
 }
-
 
 void hamming_distance_tests(void) {
   printf("\n");
@@ -105,7 +104,7 @@ void xor_tests(void) {
   printf("Hex string 1: %s\n", hex1);
   printf("              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
   printf("Hex string 2: %s\n", hex2);
-  char *enc1 = xor_2_hex_str(hex1, hex2);
+  char *enc1 = xor_encrypt_2_hex_str(hex1, hex2);
   printf("XOR encoded:  %s\n", enc1);
   TEST_ASSERT(strcmp(enc1, "746865206b696420646f6e277420706c6179") == 0);
   free(enc1);
@@ -114,7 +113,7 @@ void xor_tests(void) {
   printf("Test 2:\n");
   const char *enc2 =
       "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-  struct xor_crk_res *res = xor_hex_data(enc2);
+  struct xor_data *res = xor_crack_hex_str(enc2);
   printf("The decrypted message is: %s\n", res->dec);
   printf("With score: %f\n", res->score);
   printf("And key: %c\n", res->key);
@@ -124,8 +123,8 @@ void xor_tests(void) {
 
   printf("\n");
   printf("Test 3:\n");
-  struct xor_crk_res *res2 =
-      xor_detect_single_byte_key("../../files/base-set-1/xor-encrypted-hex.txt");
+  struct xor_data *res2 = xor_crack_with_most_likely_1_byte_key(
+      "../../files/base-set-1/xor-encrypted-hex.txt");
   printf("Plaintext: %s", res2->dec);
   printf("Key: %c\n", res2->key);
   printf("Score: %f\n", res2->score);
@@ -137,10 +136,12 @@ void xor_tests(void) {
   printf("Test 4:\n");
   printf("Use ../../files/base-set-1/xor-plain-text.txt to encrypt\n");
   struct io_data *data = read("../../files/base-set-1/xor-plain-text.txt");
-  xor_encrypt_repeat("ICE", data);
-  printf("Encrypted data size is %zu\n", data->size);
-  printf("Encrypted data is %s\n", data->buf);
-  TEST_ASSERT(data->size != 0);
+  const char *res3 = xor_encrypt_with_n_bytes_key_to_hex_str(data, "ICE");
+  printf("Encrypted data in hex is %s\n", res3);
+  TEST_ASSERT(strcmp(res3, "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d6"
+                           "3343c2a26226324272765272a282b2f20430a652e2c652a3124"
+                           "333a653e2b2027630c692b20283165286326302e27282f") == 0);
+  free((void *)res3);
   free(data->buf);
   free(data);
 }

@@ -16,10 +16,10 @@ struct io_data *read(const char *file) {
     freopen(NULL, "rb", input);
   } else {
     input = fopen(file, "rb");
-      if (input == NULL) {
-        printf("Failed to read file!\n");
-        exit(1);
-      }
+    if (input == NULL) {
+      printf("Failed to read file!\n");
+      exit(1);
+    }
   }
   while ((nread = fread(buf, 1, BUFFER_SIZE, input)) > 0) {
     if (data->size == 0) {
