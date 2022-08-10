@@ -13,16 +13,20 @@
 #include <sys/types.h>
 
 #define NUM_ASCII_CHARS 256
+#define NUM_KEYS_FOR_COMBS 4
+
+// the decrypted messsage has len/2 because
+// we consume 2 chars of the hex string to
+// create 1 byte of the decrypted string
+static size_t xor_calc_size_for_decrypted_hex_str(size_t len) {
+  return (len / 2) + 1;
+}
 
 // xors the hex string with a given key.
 static struct io_data *xor_encrypt_hex_str(const char *enc_hex, char key,
                                            size_t len) {
   struct io_data *data = malloc(sizeof(struct io_data));
-  // the decrypted messsage has len/2 because
-  // we consume 2 chars of the hex string to
-  // create 1 byte of the decrypted string
-  size_t to_alloc = (len / 2) + 1;
-  data->buf = malloc(to_alloc * sizeof(char));
+  data->buf = malloc(xor_calc_size_for_decrypted_hex_str(len) * sizeof(char));
   data->size = 0;
   for (size_t pos = 0; pos < len; pos += 2) {
     // xor with the key
@@ -39,7 +43,7 @@ static struct xor_data *xor_encrypt_bytes_with_1_byte_key(const char *bytes,
                                                           size_t start,
                                                           size_t block_size) {
   struct xor_data *res = malloc(sizeof(struct xor_data));
-  size_t rest = ((size_t)len % block_size); // + 1;
+  size_t rest = ((size_t)len % block_size);
   size_t to_alloc = ((size_t)len / block_size);
   char *dec = malloc(to_alloc * sizeof(char));
   size_t block_pos = 0;
@@ -73,7 +77,7 @@ struct xor_data *xor_get_1_byte_key_scores(struct io_data *data, size_t start,
   return res;
 }
 
-// tries to crack the encrypted hex string by
+// tries to crack the encrypted hex string
 struct xor_data *xor_crack_hex_str(const char *hex) {
   size_t len = strlen(hex);
   if (len % 2 != 0) {
@@ -81,7 +85,7 @@ struct xor_data *xor_crack_hex_str(const char *hex) {
   }
 
   struct xor_data *res = malloc(sizeof(struct xor_data));
-  res->dec = malloc(sizeof(char) * len / 2 + 1);
+  res->dec = malloc(sizeof(char) * xor_calc_size_for_decrypted_hex_str(len));
   res->score = 0.0;
   // loop through all possible values of a byte
   for (int key = 0; key < NUM_ASCII_CHARS; key++) {
@@ -128,7 +132,7 @@ static struct alg_list *xor_add_scored_key_to_list(struct alg_list *list,
 }
 
 static void xor_free_keys(char **keys) {
-  for (size_t i = 0; i < 4; i++) {
+  for (size_t i = 0; i < NUM_KEYS_FOR_COMBS; i++) {
     free(keys[i]);
     keys[i] = NULL;
   }
@@ -141,19 +145,21 @@ struct alg_list *xor_get_list_of_scored_key_sizes(const struct io_data *data,
                                                   size_t max_key_size) {
   struct alg_list *key_list = alg_init_List();
   for (size_t key_size = min_key_size; key_size < max_key_size; key_size++) {
-    char **keys = malloc(4 * sizeof(char *));
-    for (size_t i = 0; i < 4; i++) {
+    char **keys = malloc(NUM_KEYS_FOR_COMBS * sizeof(char *));
+    for (size_t i = 0; i < NUM_KEYS_FOR_COMBS; i++) {
       keys[i] = malloc(key_size * sizeof(char));
       memcpy(keys[i], data->buf + i * key_size, key_size);
     }
-    struct alg_tuple_list *combs = alg_combine_key_pairs(keys, key_size, 4);
+    struct alg_tuple_list *combs =
+        alg_combine_key_pairs(keys, key_size, NUM_KEYS_FOR_COMBS);
     float score = 0.0;
     for (size_t i = 0; i < combs->size; i++) {
       score += (float)alg_hamming_dist_fixed_len(combs->tuples[i]->a,
                                                  combs->tuples[i]->b, key_size);
     }
     score /= (float)key_size;
-    key_list = xor_add_scored_key_to_list(key_list, key_size, score / (float)6);
+    key_list = xor_add_scored_key_to_list(key_list, key_size,
+                                          score / (float)combs->size);
     alg_free_tuple_list(combs);
     xor_free_keys(keys);
   }

@@ -26,7 +26,7 @@ endif
 
 incdir = include_directories('test')
 
-src = [
+craxor_src = [
   'main/craxor.c',
   'xor.c',
   'base64.c',
@@ -35,10 +35,21 @@ src = [
   'io.c'
 ]
 
-executable('craxor', sources: src, include_directories: incdir, dependencies: [m_dep,unity_dep], c_args: compiler_args)
+executable('craxor', sources: craxor_src, include_directories: incdir, dependencies: [m_dep,unity_dep], c_args: compiler_args)
+
+aes_src = [
+  'main/aestest.c',
+  'xor.c',
+  'base64.c',
+  'algorithms.c',
+  'score.c',
+  'io.c'
+]
+
+executable('aestest', sources: aes_src, include_directories: incdir, dependencies: [m_dep,unity_dep], c_args: compiler_args)
 
 # unit tests
-unittest_src = [
+craxor_unittest_src = [
   'test/set-1-test.c',
   'xor.c',
   'base64.c',
@@ -46,6 +57,7 @@ unittest_src = [
   'score.c',
   'io.c'
 ]
-#incdir_unittests = include_directories('subprojects/unity/src')
-unittests = executable('craxor-unittests', sources: unittest_src, dependencies: [unity_dep, m_dep])
-test('Bla', unittests)
+
+#unittests = executable('craxor-unittests', sources: craxor_unittest_src, dependencies: [unity_dep, m_dep])
+#test('Bla', unittests)
+executable('craxor-unittests', sources: craxor_unittest_src, dependencies: [unity_dep, m_dep])
