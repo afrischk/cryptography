@@ -1,3 +1,4 @@
+#include "aes_galois.h"
 #include "algorithms.h"
 #include "base64.h"
 #include "io.h"
@@ -138,12 +139,27 @@ void xor_tests(void) {
   struct io_data *data = read("../../files/base-set-1/xor-plain-text.txt");
   const char *res3 = xor_encrypt_with_n_bytes_key_to_hex_str(data, "ICE");
   printf("Encrypted data in hex is %s\n", res3);
-  TEST_ASSERT(strcmp(res3, "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d6"
-                           "3343c2a26226324272765272a282b2f20430a652e2c652a3124"
-                           "333a653e2b2027630c692b20283165286326302e27282f") == 0);
+  TEST_ASSERT(strcmp(res3,
+                     "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d6"
+                     "3343c2a26226324272765272a282b2f20430a652e2c652a3124"
+                     "333a653e2b2027630c692b20283165286326302e27282f") == 0);
   free((void *)res3);
   free(data->buf);
   free(data);
+}
+
+void aes_tests() {
+  printf("\n");
+  printf("###############################\n");
+  printf("########## AES Tests ##########\n");
+  printf("###############################\n");
+  printf("\n");
+
+  printf("Test 1:\n");
+  unsigned char a = 0x57;
+  unsigned char b = 0x83;
+  unsigned char p = aes_gmul(a, b);
+  printf("Gmul result is: %x\n", p);
 }
 
 int main(void) {
@@ -151,5 +167,6 @@ int main(void) {
   RUN_TEST(hamming_distance_tests);
   RUN_TEST(base64_tests);
   RUN_TEST(xor_tests);
+  RUN_TEST(aes_tests);
   return UNITY_END();
 }

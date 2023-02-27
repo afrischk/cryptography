@@ -39,6 +39,7 @@ executable('craxor', sources: craxor_src, include_directories: incdir, dependenc
 
 aes_src = [
   'main/aestest.c',
+  'aes.c',
   'xor.c',
   'base64.c',
   'algorithms.c',
@@ -49,8 +50,9 @@ aes_src = [
 executable('aestest', sources: aes_src, include_directories: incdir, dependencies: [m_dep,unity_dep], c_args: compiler_args)
 
 # unit tests
-craxor_unittest_src = [
+set_1_unittest_src = [
   'test/set-1-test.c',
+  'aes_galois.c',
   'xor.c',
   'base64.c',
   'algorithms.c',
@@ -58,4 +60,4 @@ craxor_unittest_src = [
   'io.c'
 ]
 
-executable('craxor-unittests', sources: craxor_unittest_src, dependencies: [unity_dep, m_dep])
+executable('set_1_unittests', sources: set_1_unittest_src, dependencies: [unity_dep, m_dep])
