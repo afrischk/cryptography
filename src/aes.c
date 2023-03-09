@@ -41,8 +41,17 @@ void aes_expand_key(char const *key, char **words, size_t nk, size_t nr) {
     // char *q = *(temp);
     //  TODO: why this is not possible? pass fixed sized char array by
     //  reference?
-    //words[i] = xor_encrypt_2_byte_arrays(words[i - nk], temp, AES_WORD_SIZE);
+    // words[i] = xor_encrypt_2_byte_arrays(words[i - nk], temp, AES_WORD_SIZE);
     // xor_2_words(w[i - nk], temp, w[i], AES_WORD_SIZE);
     i++;
   }
+}
+
+void aes_rotate_word(unsigned char *word, size_t len) {
+  unsigned char first_byte = word[0];
+  for (size_t i = 0; i < len - 1; i++) {
+    word[i] = word[i + 1];
+  }
+  word[len-1] = first_byte;
+  return;
 }

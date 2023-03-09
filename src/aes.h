@@ -16,7 +16,7 @@ void aes_shift_rows(void);
 void aes_mix_columns(void);
 void aes_add_round_key(void);
 void aes_expand_key(char const* key, char** words, size_t nk, size_t nr);
-void aes_rotate_word(char* word);
+void aes_rotate_word(unsigned char* word, size_t len);
 void aes_sub_word(char* word);
 unsigned char aes_round_constant(unsigned char i);
 void aes_encrypt(void);

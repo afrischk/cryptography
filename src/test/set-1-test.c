@@ -1,3 +1,4 @@
+#include "aes.h"
 #include "aes_galois.h"
 #include "algorithms.h"
 #include "base64.h"
@@ -5,6 +6,7 @@
 #include "unity_internals.h"
 #include "xor.h"
 #include <assert.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -159,7 +161,33 @@ void aes_tests() {
   unsigned char a = 0x57;
   unsigned char b = 0x83;
   unsigned char p = aes_gmul(a, b);
+  printf("Gmul a = %x and b = %x\n", a, b);
   printf("Gmul result is: %x\n", p);
+  TEST_ASSERT_EQUAL_HEX8(0xc1, p);
+  b = 0x13;
+  p = aes_gmul(a, b);
+  printf("Gmul a = %x and b = %x\n", a, b);
+  printf("Gmul result is: %x\n", p);
+  TEST_ASSERT_EQUAL_HEX8(0xfe, p);
+
+  printf("Test 2:\n");
+  unsigned char word[4] = {0x00, 0x01, 0x02, 0x03};
+  size_t len = 4;
+  printf("Rotate word: ");
+  for(size_t i = 0; i < 4; i++){
+      printf("%x", word[i]);
+  }
+  printf("\n");
+  aes_rotate_word(word, len);
+  printf("Rotated word: ");
+  for(size_t i = 0; i < 4; i++){
+      printf("%x", word[i]);
+  }
+  printf("\n");
+  TEST_ASSERT_EQUAL_HEX8(0x01, word[0]);
+  TEST_ASSERT_EQUAL_HEX8(0x02, word[1]);
+  TEST_ASSERT_EQUAL_HEX8(0x03, word[2]);
+  TEST_ASSERT_EQUAL_HEX8(0x00, word[3]);
 }
 
 int main(void) {

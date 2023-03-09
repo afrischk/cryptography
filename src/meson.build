@@ -52,6 +52,7 @@ executable('aestest', sources: aes_src, include_directories: incdir, dependencie
 # unit tests
 set_1_unittest_src = [
   'test/set-1-test.c',
+  'aes.c',
   'aes_galois.c',
   'xor.c',
   'base64.c',

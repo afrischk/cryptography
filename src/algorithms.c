@@ -146,3 +146,12 @@ void alg_free_list(struct alg_list *list) {
   free(node);
   free(list);
 }
+
+/*void alg_rotate(unsigned char *in, size_t len){
+    unsigned char a;
+    size_t i = 0;
+    for (i < len; i++){
+        in[i] = in[i + 1]
+    }
+    in[len - 1] = a;
+}*/

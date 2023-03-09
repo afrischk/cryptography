@@ -37,6 +37,8 @@ void alg_add_node_before(struct alg_list *list, struct alg_node *node,
                          struct alg_node *new);
 struct alg_list *alg_add_node(struct alg_list *list, struct alg_node *new_node);
 void alg_free_list(struct alg_list *list);
-unsigned int alg_hamming_dist_fixed_len(const char *hex1, const char *hex2, size_t len);
+unsigned int alg_hamming_dist_fixed_len(const char *hex1, const char *hex2,
+                                        size_t len);
 unsigned int alg_hamming_dist(const char *hex1, const char *hex2);
+//void alg_rotate(unsigned char *in);
 #endif /*ALGORITHMS_H*/
